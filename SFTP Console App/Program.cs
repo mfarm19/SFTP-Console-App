@@ -8,24 +8,24 @@ using System.Text;
 
 class Program
 {
-	public static List<SftpFile> retryList = new List<SftpFile>();
-	public static StringBuilder log = new StringBuilder();
+	private static List<SftpFile> retryList = new List<SftpFile>();
+	private static StringBuilder log = new StringBuilder();
 
-	// Declare SFTP servers
-	public static SftpClient client1 = new SftpClient("127.0.0.1", "username", "password");
-	public static SftpClient client2 = new SftpClient("127.0.0.1", "username", "password");
+	// Declare SFTP servers; the user will be asked to input this in production
+	private static SftpClient? client1 = null;
+	private static SftpClient? client2 = null;
 
-	// TODO: either hardcode the actual location into the code or give the user a prompt to enter it. We are using OpenSSH Serve in dev, but the actual path should be different and my have a different format in production
-	public static string clientOneDirectoryLocation = "/C:/Users/username.DESKTOP-6FQE1ER/FTPTests/";
-	public static string clientTwoDirectoryLocation = "/C:/Users/username.DESKTOP-6FQE1ER/FTPTests/";
+	// Declare DirectoryLocation for both servers; the user will be asked to input this in production
+	private static string clientOneDirectoryLocation = System.Diagnostics.Debugger.IsAttached ? "/C:/Users/username.DESKTOP-6FQE1ER/FTPTests/" : String.Empty;
+	private static string clientTwoDirectoryLocation = System.Diagnostics.Debugger.IsAttached ? "/C:/Users/username.DESKTOP-6FQE1ER/FTPTests/" : String.Empty;
 
 	static void Main(string[] args)
 	{
+		// Connect to first SFTP server
 		while (true)
 		{
 			try
 			{
-				// Connect to first SFTP server
 				client1 = connectToSFTPServer("SFTP Server 1");
 				client1.Connect();
 				Console.WriteLine("Connected to SFTP Server 1.");
@@ -39,16 +39,64 @@ class Program
 			}
 		}
 
+		// Locate the download directory for the first server
+		while (clientOneDirectoryLocation == String.Empty || !client1.Exists(clientOneDirectoryLocation))
+		{
+			try
+			{
+				Console.Write($"What is the directory location for SFTP Server 1? ");
+				clientOneDirectoryLocation = Console.ReadLine();
+				if (!client1.Exists(clientOneDirectoryLocation))
+				{
+					Console.Write($"Directory not found. ");
+				}
+				else
+				{
+					Console.WriteLine("SFTP Server 1 directory located.");
+					log.Append($"SFTP Server 1 directory located..{Environment.NewLine}");
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error: {ex.Message}");
+				log.Append($"Error: {ex.Message}");
+			}
+		}
+
+		// Connect to second SFTP server
 		while (true)
 		{
 			try
 			{
-				// Connect to second SFTP server
 				client2 = connectToSFTPServer("SFTP Server 2");
 				client2.Connect();
 				Console.WriteLine("Connected to SFTP Server 2.");
 				log.Append($"Connected to SFTP Server 2.{Environment.NewLine}");
 				break;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error: {ex.Message}");
+				log.Append($"Error: {ex.Message}");
+			}
+		}
+
+		// Locate the upload directory for the second server
+		while (clientTwoDirectoryLocation == String.Empty || !client2.Exists(clientTwoDirectoryLocation))
+		{
+			try
+			{
+				Console.Write($"What is the directory location for SFTP Server 2? ");
+				clientTwoDirectoryLocation = Console.ReadLine();
+				if (!client2.Exists(clientTwoDirectoryLocation))
+				{
+					Console.Write($"Directory not found. ");
+				}
+				else
+				{
+					Console.WriteLine("SFTP Server 2 directory located.");
+					log.Append($"SFTP Server 2 directory located..{Environment.NewLine}");
+				}
 			}
 			catch (Exception ex)
 			{
@@ -174,7 +222,7 @@ class Program
 		Environment.Exit(0);
 	}
 
-	public static SftpClient connectToSFTPServer(string client)
+	private static SftpClient connectToSFTPServer(string client)
 	{
 		// Skip this step if we're debugging
 		if (System.Diagnostics.Debugger.IsAttached)
@@ -184,16 +232,16 @@ class Program
 
 		// Wait for next keystroked
 		Console.Write($"What is the server address for {client}? ");
-		string address = Console.ReadLine();
+		string? address = Console.ReadLine();
 		Console.Write("Username: ");
-		string username = Console.ReadLine();
+		string? username = Console.ReadLine();
 		Console.Write("Password: ");
 		string password = hideKeyup();
 
 		return new SftpClient(address, username, password);
 	}
 
-	public static string hideKeyup()
+	private static string hideKeyup()
 	{
 		string password = "";
 
@@ -220,7 +268,7 @@ class Program
 		return password;
 	}
 
-	public static void processFiles(IEnumerable<SftpFile> fileList)
+	private static void processFiles(IEnumerable<SftpFile> fileList)
 	{
 		// Empty the retry list
 		retryList = new List<SftpFile>();
@@ -248,7 +296,7 @@ class Program
 		}
 	}
 
-	public static MemoryStream transformFile(SftpFile file)
+	private static MemoryStream transformFile(SftpFile file)
 	{
 		MemoryStream mergedStream = new MemoryStream();
 
