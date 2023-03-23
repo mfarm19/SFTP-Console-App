@@ -305,7 +305,7 @@ class Program
 				MemoryStream mergedStream = transformFile(file);
 
 				// Attempt to upload the file to server two
-				client2.UploadFile(mergedStream, clientTwoDirectoryLocation + file.Name);
+				client2.UploadFile(mergedStream, $"{clientTwoDirectoryLocation}/{file.Name}");
 
 				log.Append($"Processed: {file.Name}. {Environment.NewLine}");
 			}
@@ -327,7 +327,7 @@ class Program
 		{
 			// Read file from first server
 			MemoryStream fileStream = new MemoryStream();
-			client1.DownloadFile(clientOneDirectoryLocation + file.Name, fileStream);
+			client1.DownloadFile($"{clientOneDirectoryLocation}/{file.Name}", fileStream);
 
 			// Modify file, we are just adding "xxx" to the start and end of the txt file here because we don't know how we actually to modify the file
 			var text = "xxx" + System.Text.Encoding.UTF8.GetString(fileStream.ToArray()) + "xxx";
