@@ -16,8 +16,8 @@ class Program
 	private static SftpClient? client2 = null;
 
 	// Declare DirectoryLocation for both servers; the user will be asked to input this in production
-	private static string clientOneDirectoryLocation = System.Diagnostics.Debugger.IsAttached ? "/C:/Users/username.DESKTOP-6FQE1ER/FTPTests/" : String.Empty;
-	private static string clientTwoDirectoryLocation = System.Diagnostics.Debugger.IsAttached ? "/C:/Users/username.DESKTOP-6FQE1ER/FTPTests/" : String.Empty;
+	private static string clientOneDirectoryLocation = System.Diagnostics.Debugger.IsAttached ? "FTPTests" : String.Empty;
+	private static string clientTwoDirectoryLocation = System.Diagnostics.Debugger.IsAttached ? "FTPTests" : String.Empty;
 
 	static void Main(string[] args)
 	{
@@ -40,13 +40,24 @@ class Program
 		}
 
 		// Locate the download directory for the first server
+		Console.ForegroundColor = ConsoleColor.Blue;
+		Console.WriteLine("Type \"!help\" for a list of available directories on Server 1.");
+		Console.ResetColor();
 		while (clientOneDirectoryLocation == String.Empty || !client1.Exists(clientOneDirectoryLocation))
 		{
 			try
 			{
 				Console.Write($"What is the directory location for SFTP Server 1? ");
 				clientOneDirectoryLocation = Console.ReadLine();
-				if (!client1.Exists(clientOneDirectoryLocation))
+				if (clientOneDirectoryLocation == "!help")
+				{
+					var directories = client1.ListDirectory(".").Where(x => x.IsDirectory).Select(x => x.Name);
+					foreach (var directory in directories)
+					{
+						Console.WriteLine(directory);
+					}
+				}
+				else if (!client1.Exists(clientOneDirectoryLocation))
 				{
 					Console.Write($"Directory not found. ");
 				}
@@ -82,13 +93,24 @@ class Program
 		}
 
 		// Locate the upload directory for the second server
+		Console.ForegroundColor = ConsoleColor.Blue;
+		Console.WriteLine("Type \"!help\" for a list of available directories on Server 2.");
+		Console.ResetColor();
 		while (clientTwoDirectoryLocation == String.Empty || !client2.Exists(clientTwoDirectoryLocation))
 		{
 			try
 			{
-				Console.Write($"What is the directory location for SFTP Server 2? ");
+				Console.Write("What is the directory location for SFTP Server 2? ");
 				clientTwoDirectoryLocation = Console.ReadLine();
-				if (!client2.Exists(clientTwoDirectoryLocation))
+				if (clientTwoDirectoryLocation == "!help")
+				{
+					var directories = client2.ListDirectory(".").Where(x => x.IsDirectory).Select(x => x.Name);
+					foreach (var directory in directories)
+					{
+						Console.WriteLine(directory);
+					}
+				}
+				else if (!client2.Exists(clientTwoDirectoryLocation))
 				{
 					Console.Write($"Directory not found. ");
 				}
