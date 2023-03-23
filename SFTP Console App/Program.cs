@@ -16,6 +16,7 @@ class Program
 	private static SftpClient? client2 = null;
 
 	// Declare DirectoryLocation for both servers; the user will be asked to input this in production
+	// TODO: Consider the possibility that the user may want to use a directory that's two or more folders deep OR that they may want to use the root folder/default logon location
 	private static string clientOneDirectoryLocation = System.Diagnostics.Debugger.IsAttached ? "FTPTests" : String.Empty;
 	private static string clientTwoDirectoryLocation = System.Diagnostics.Debugger.IsAttached ? "FTPTests" : String.Empty;
 
