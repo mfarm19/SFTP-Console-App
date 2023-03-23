@@ -4,4 +4,4 @@ This is a simple console app that connets via SFTP to two file servers then retr
 
 A new log is created each time the application is launched.
 
-![Animation](https://user-images.githubusercontent.com/54787437/226931904-cd3ac55b-11b3-40aa-a5ba-33721df2e1c7.gif)
+![Animation](https://user-images.githubusercontent.com/54787437/227081207-4390df6f-0bb1-44c2-91b1-c0c8ce6e5bb3.gif)
